@@ -1,5 +1,6 @@
 package rabob_foreach;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -26,7 +27,19 @@ public class CleanDriver extends org.apache.hadoop.conf.Configured
         job.setMapperClass(CleanMapper.class);
         job.setMapOutputKeyClass(NullWritable.class);
         job.setMapOutputValueClass(Text.class);
-        job.setNumReduceTasks(5);
+
+        Configuration conf = new Configuration();
+
+        job.getConfiguration().setBoolean("mapreduce.mat.output.compress",true);
+        job.getConfiguration().set("mapreduce.map.output.compress.codec",
+                "org.apache.hadoop.io.compress.GzipCodec");
+        job.getConfiguration().setBoolean("mapreduce.output.fileoutputformat.compress", true);
+        job.getConfiguration().set("mapreduce.output.fileoutputformat.compress.type", "BLOCK");
+        job.getConfiguration().set("mapreduce.output.fileoutputformat.compress.codec",
+                "org.apache.hadoop.io.compress.GzipCodec");
+
+
+        job.setNumReduceTasks(0);
         return job.waitForCompletion(true) ? 0:1;
     }
 
